@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>建模写手训练台</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .day-actions{border-left:1px solid var(--line);display:grid;min-width:108px}
+    .day-actions button{border:0;background:#f9faf9;padding:8px 13px;cursor:pointer;color:var(--teal);font-weight:700}
+    .day-actions button+button{border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+    dialog{width:min(760px,92vw);max-height:88vh;padding:38px}
+    .lesson-goal{padding:16px;background:#e4efeb;border-left:3px solid var(--teal)}
+    .lesson-content section{padding:10px 0;border-bottom:1px solid var(--line)}
+    .lesson-content section h3{margin:5px 0;font-size:16px;color:var(--blue)}
+    .template-box{margin-top:22px;padding:18px;background:#17272b;color:white}
+    .template-box strong{color:var(--yellow)}
+    .template-box p{color:#d8e1df;margin-bottom:0}
+    @media(max-width:620px){.day-actions{grid-column:1/-1;grid-template-columns:1fr 1fr;border-left:0;border-top:1px solid var(--line)}}
+    .chapter-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .chapter-card{background:white;border:1px solid var(--line);padding:24px;cursor:pointer;min-height:220px;display:flex;flex-direction:column;transition:.2s}
+    .chapter-card:hover{border-color:var(--teal);transform:translateY(-3px)}
+    .chapter-card>span{font-size:10px;color:var(--red);font-weight:800}
+    .chapter-card h3{font-size:20px;line-height:1.4;margin:12px 0}
+    .chapter-card p{color:var(--muted);font-size:13px;line-height:1.7}
+    .chapter-card>div{border-top:1px solid var(--line);padding-top:13px;margin-top:auto;font-size:11px;color:var(--muted)}
+    .chapter-card>div b{font:20px Georgia;color:var(--red)}.chapter-card>div strong{float:right;color:var(--teal)}
+    .deep-content{max-width:720px}.deep-content section p{font-size:14px;line-height:2}
+    .source-box{margin-top:22px;padding:18px;background:#f0f3f1;border:1px solid var(--line)}
+    .source-search{display:grid;grid-template-columns:1fr 1fr;gap:25px;background:#dfeae6;padding:26px;margin:0 0 12px}
+    .source-search h3{font-size:22px;margin:0 0 8px}.source-search p{font-size:12px;color:var(--muted);line-height:1.7;margin:0}
+    .source-controls{display:flex;align-items:center}.source-controls input{min-width:0;flex:1;border:1px solid #b9c7c2;padding:12px}.source-controls button{border:0;background:var(--teal);color:white;padding:13px 18px;cursor:pointer}
+    .source-stats{font-size:11px;color:var(--muted);margin-bottom:16px}.source-results{display:grid;gap:8px;margin-bottom:25px;max-height:620px;overflow:auto}
+    .source-hit{background:white;border:1px solid var(--line);padding:16px}.source-hit>div{display:flex;justify-content:space-between;gap:10px}.source-hit strong{font-size:12px}.source-hit span{white-space:nowrap;color:var(--red);font-size:11px}.source-hit p{font-size:12px;line-height:1.7;color:#46555a}.source-hit small{color:#899493;font-size:9px}.source-hit mark{background:#f7df91}.result-summary,.empty-result{font-size:12px;color:var(--muted);padding:10px}
+    @media(max-width:720px){.chapter-grid,.source-search{grid-template-columns:1fr}.source-controls{align-items:stretch}.chapter-card{min-height:0}}
+    .study-session{max-width:720px}.session-progress{display:grid;grid-template-columns:repeat(4,1fr);margin:20px 0;background:#eef2f0}.session-progress span{padding:11px;text-align:center;font-size:10px;border-right:1px solid var(--line)}
+    .session-input textarea,.recall-box input{width:100%;border:1px solid var(--line);padding:12px;font:13px inherit;background:white}.session-input textarea{min-height:90px;resize:vertical;margin:6px 0}.role-switch{display:flex;margin-top:22px}.role-switch button{border:1px solid var(--line);background:white;padding:10px 15px;cursor:pointer}.role-switch button.active{background:var(--ink);color:white}.role-content{padding:18px;background:#f1f4f2;font-size:13px;line-height:1.8;border-bottom:2px solid var(--teal)}
+    .section-index{font:12px Georgia!important;color:var(--red)!important;margin:0!important}.lesson-content details{background:#f4f6f4;padding:11px;margin-top:10px}.lesson-content summary{cursor:pointer;font-size:11px;color:var(--teal);font-weight:700}.recall-box{background:#e3ece8;padding:20px;margin-top:24px}.recall-box label{display:block;font-size:12px;font-weight:700;margin:13px 0}.recall-box input{display:block;margin-top:6px;font-weight:400}.confidence-box{display:grid;grid-template-columns:1fr 170px 55px;align-items:center;gap:14px;padding:18px;border:1px solid var(--line);margin-top:18px}.confidence-box h3,.confidence-box p{margin:0}.confidence-box p{font-size:10px;color:var(--muted)}.session-submit{display:flex;align-items:end;justify-content:space-between;margin-top:18px}.session-submit label{font-size:11px}.session-submit input{display:block;width:100px;padding:9px;border:1px solid var(--line);margin-top:5px}.session-submit button{border:0;background:var(--teal);color:white;padding:13px 20px;cursor:pointer;font-weight:700}
+    .record-actions{display:flex;gap:8px}.record-actions button,.record-actions label{border:1px solid var(--line);background:white;padding:10px 12px;font-size:11px;cursor:pointer}.record-actions input{display:none}.record-metrics{display:grid;grid-template-columns:repeat(4,1fr);background:white;border:1px solid var(--line);margin-bottom:32px}.record-metrics article{padding:22px;border-right:1px solid var(--line)}.record-metrics article:last-child{border:0}.record-metrics span{display:block;font:32px Georgia;color:var(--teal)}.record-metrics small{color:var(--muted)}.record-layout{display:grid;grid-template-columns:1fr 340px;gap:28px}.profile-panel{background:#17272b;color:white;padding:25px}.profile-panel h3{margin:0 0 20px}.profile-tip{font-size:10px;color:#9fb1b1;line-height:1.6}.skill-profile{display:grid;gap:9px}.skill-profile>div{display:grid;grid-template-columns:68px 1fr 25px;gap:8px;align-items:center;font-size:10px}.skill-profile i{height:5px;background:#355055}.skill-profile b{display:block;height:100%;background:var(--yellow)}.skill-profile em{font-style:normal;color:#aec0c1}.review-queue{display:grid;gap:9px}.review-item{display:flex;justify-content:space-between;gap:15px;background:white;border-left:3px solid var(--red);padding:16px}.review-item span{font-size:10px;color:var(--red);display:block}.review-item strong{font-size:13px}.review-item p{font-size:11px;color:var(--muted);margin:6px 0 0}.review-item button{border:0;background:#edf2f0;color:var(--teal);cursor:pointer;white-space:nowrap}.record-history-head{margin-top:40px}.record-history-head select{border:1px solid var(--line);background:white;padding:9px}.record-list{display:grid;gap:10px}.record-entry{display:grid;grid-template-columns:60px 1fr 80px;gap:18px;background:white;border:1px solid var(--line);padding:18px}.record-date{border-right:1px solid var(--line)}.record-date strong{display:block;font:27px Georgia;color:var(--red)}.record-date span{font-size:10px;color:var(--muted)}.record-entry h3{margin:0;font-size:15px}.record-entry>div:nth-child(2)>p:not(.eyebrow){font-size:12px;color:var(--muted);line-height:1.6}.record-entry small{font-size:9px;color:#8a9694}.record-entry>button{border:0;background:#edf2f0;color:var(--teal);cursor:pointer}.question-tags{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.question-tags span{font-size:9px;background:#f7e8e5;color:var(--red);padding:4px 6px}.empty-record{background:white;border:1px dashed var(--line);padding:24px;color:var(--muted);font-size:12px}
+    @media(max-width:800px){.record-layout{grid-template-columns:1fr}.record-metrics{grid-template-columns:1fr 1fr}.confidence-box{grid-template-columns:1fr}.session-progress{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.record-entry{grid-template-columns:45px 1fr}.record-entry>button{grid-column:1/-1;padding:10px}.record-actions{width:100%}.record-actions>*{flex:1;text-align:center}.record-metrics article{padding:15px}.session-submit{align-items:stretch;gap:12px;flex-direction:column}.session-submit input{width:100%}}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">M</span><div><strong>建模写手训练台</strong><small>WHUT · 国赛备赛</small></div></div>
+    <nav id="nav">
+      <button class="nav-item active" data-view="today"><span>01</span>今日训练</button>
+      <button class="nav-item" data-view="roadmap"><span>02</span>学习路线</button>
+      <button class="nav-item" data-view="records"><span>03</span>学习档案</button>
+      <button class="nav-item" data-view="textbook"><span>04</span>深度专题</button>
+      <button class="nav-item" data-view="methods"><span>05</span>方法速查</button>
+      <button class="nav-item" data-view="paper"><span>06</span>论文体检</button>
+      <button class="nav-item" data-view="library"><span>07</span>课件知识库</button>
+    </nav>
+    <div class="sidebar-foot"><span id="doneCount">0</span><small>项训练已完成</small><button id="resetBtn">重置进度</button></div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div><p class="eyebrow">WRITER-FIRST CURRICULUM</p><h1 id="viewTitle">今日训练</h1></div>
+      <div class="progress-ring" id="progressRing"><span id="progressNumber">0%</span></div>
+    </header>
+
+    <section class="view active" id="today">
+      <div class="hero-band">
+        <div><p class="kicker">你不需要先学完所有数学</p><h2>先学会把队友的模型<br>写成评委愿意读的论文</h2><p>从审题、证据链和结果表达入手，再按题型补齐方法。每天 60–90 分钟，14 天完成第一轮。</p><button class="command" data-jump="roadmap">开始第 1 天 <span>→</span></button></div>
+        <img src="assets/writer-map.png" alt="模型到论文的结构化路径图">
+      </div>
+      <div class="metric-grid">
+        <article><span>01</span><strong>审题翻译</strong><p>背景 → 目标 → 输入 → 输出 → 约束</p></article>
+        <article><span>02</span><strong>模型叙事</strong><p>为什么选、怎样建、如何求、怎样验</p></article>
+        <article><span>03</span><strong>结果证据</strong><p>表格、图形、误差、敏感性、结论</p></article>
+        <article><span>04</span><strong>赛场协作</strong><p>边算边写，接口清楚，拒绝最后通宵拼接</p></article>
+      </div>
+      <div class="section-head"><div><p class="eyebrow">TODAY · 75 MIN</p><h2>第一次训练：拆一篇国一论文</h2></div><span class="time-chip">建议今晚完成</span></div>
+      <div class="task-board">
+        <label class="task"><input type="checkbox" data-task="t1"><span class="check"></span><div><strong>10 分钟 · 只读摘要</strong><p>圈出研究对象、四问对应方法、三个关键结果、验证方式。若摘要缺任何一项，写下缺口。</p></div></label>
+        <label class="task"><input type="checkbox" data-task="t2"><span class="check"></span><div><strong>20 分钟 · 画问题链</strong><p>把四问画成箭头：上一问输出怎样进入下一问。禁止只抄题目。</p></div></label>
+        <label class="task"><input type="checkbox" data-task="t3"><span class="check"></span><div><strong>25 分钟 · 逆向拆模型段</strong><p>找出一个模型的“假设—变量—目标/关系—求解—验证”，每项各写一句。</p></div></label>
+        <label class="task"><input type="checkbox" data-task="t4"><span class="check"></span><div><strong>20 分钟 · 改写结论</strong><p>选一段空泛结论，改成“数值 + 对象 + 条件 + 意义”，控制在 80 字以内。</p></div></label>
+      </div>
+      <div class="rule-strip"><strong>写手底线</strong><span>没有数字的结论通常不是结果</span><span>没有验证的模型通常不是闭环</span><span>没有输入输出的分问通常没有被理解</span></div>
+    </section>
+
+    <section class="view" id="roadmap">
+      <div class="intro-row"><div><p class="eyebrow">14-DAY SPRINT</p><h2>两周学习路线</h2><p>按写作价值排序，而非课件顺序。前 7 天建立论文框架，后 7 天学会读懂并追问队友的模型。</p></div><div class="pace"><button class="pace-btn active">标准 · 14天</button><button class="pace-btn">加速 · 7天</button></div></div>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+    <section class="view" id="records">
+      <div class="intro-row"><div><p class="eyebrow">PERSONAL LEARNING DATABASE</p><h2>你的学习档案</h2><p>这里保存每天的理解、问题、错误和复习记录。它衡量的不是“看过多少页”，而是你能否解释、应用和写出来。</p></div><div class="record-actions"><button id="exportRecords">导出档案</button><label>导入档案<input id="importRecords" type="file" accept="application/json"></label><button id="clearRecords">清空档案</button></div></div>
+      <div class="record-metrics"><article><span id="metricSessions">0</span><small>学习会话</small></article><article><span id="metricMinutes">0</span><small>累计分钟</small></article><article><span id="metricQuestions">0</span><small>待解决问题</small></article><article><span id="metricReviews">0</span><small>今日复习</small></article></div>
+      <div class="record-layout">
+        <div><div class="section-head"><div><p class="eyebrow">REVIEW QUEUE</p><h2>需要再次想起来的内容</h2></div></div><div id="reviewQueue" class="review-queue"></div></div>
+        <aside class="profile-panel"><p class="eyebrow">学习者画像</p><h3>写手能力雷达</h3><div id="skillProfile" class="skill-profile"></div><p class="profile-tip">置信度来自你的课后自评。低分不是失败，而是下一次复习的依据。</p></aside>
+      </div>
+      <div class="section-head record-history-head"><div><p class="eyebrow">LEARNING LOG</p><h2>学习记录</h2></div><select id="recordFilter"><option value="all">全部记录</option><option value="question">仅疑问</option><option value="low">低置信度</option></select></div>
+      <div id="recordList" class="record-list"></div>
+    </section>
+
+    <section class="view" id="methods">
+      <div class="filter-row"><div><p class="eyebrow">METHOD TRANSLATOR</p><h2>方法不是名字，是一组承诺</h2></div><div class="filters"><button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="stats">统计</button><button class="filter" data-filter="opt">优化</button><button class="filter" data-filter="dynamic">动态</button><button class="filter" data-filter="ml">机器学习</button></div></div>
+      <div class="method-grid" id="methodGrid"></div>
+      <div class="question-panel"><div><p class="eyebrow">向建模手追问</p><h3>听到一个模型名，先问这 6 件事</h3></div><ol><li>它解决哪一问，输出是什么？</li><li>为什么适合这些数据和约束？</li><li>变量、参数和单位是什么？</li><li>关键假设是否符合背景？</li><li>用什么基线或指标验证？</li><li>失败情形和适用边界是什么？</li></ol></div>
+    </section>
+
+    <section class="view" id="textbook">
+      <div class="intro-row"><div><p class="eyebrow">DEEP-DIVE TEXTBOOK</p><h2>从“会叫名字”到理解模型为何成立</h2><p>每章围绕数学对象、假设、推导、诊断、失效边界和论文表达展开。建议先学与候选赛题对应的章节。</p></div><span class="time-chip">8 个核心专题</span></div>
+      <div class="chapter-grid" id="chapterGrid"></div>
+    </section>
+
+    <section class="view" id="paper">
+      <div class="paper-layout">
+        <div><p class="eyebrow">PAPER DOCTOR</p><h2>论文体检清单</h2><p>比赛第二天晚上开始反复检查。勾选结果保存在本机。</p><div class="score-line"><strong id="paperScore">0 / 18</strong><span>已通过</span></div></div>
+        <div class="paper-checks" id="paperChecks"></div>
+      </div>
+      <div class="abstract-lab"><div><p class="eyebrow">摘要五句法</p><h3>评委先在这里决定是否继续认真读</h3></div><div class="sentence-grid"><article><span>1</span><strong>总任务</strong><p>一句话说明对象、矛盾和整篇目标。</p></article><article><span>2</span><strong>问题链</strong><p>交代各问怎样递进，而非复制题目。</p></article><article><span>3</span><strong>核心模型</strong><p>说方法，更要说关键改造与原因。</p></article><article><span>4</span><strong>硬结果</strong><p>至少给出关键数值、误差或方案。</p></article><article><span>5</span><strong>验证与价值</strong><p>说明可靠性及现实意义，不喊口号。</p></article></div></div>
+    </section>
+
+    <section class="view" id="library">
+      <div class="library-head"><div><p class="eyebrow">CURATED FROM YOUR FILES</p><h2>资料不求全读，只求在正确时点读</h2></div><input id="searchInput" type="search" placeholder="搜索主题或资料…"></div>
+      <div class="source-search"><div><p class="eyebrow">FULL-TEXT · 约 2400 页</p><h3>搜索老师课件原文</h3><p>输入概念后返回文件名、页码和原文片段。例：主成分、异方差、摘要、灵敏度、Monte Carlo。</p></div><div class="source-controls"><input id="sourceQuery" type="search" placeholder="输入要深入学习的概念"><button id="sourceSearchBtn">检索课件</button></div></div>
+      <div id="sourceStats" class="source-stats">正在载入逐页知识库…</div>
+      <div id="sourceResults" class="source-results"></div>
+      <div class="priority-note"><strong>阅读顺序</strong><span>P0：写手必须</span><span>P1：按题型补充</span><span>P2：遇到对应赛题再查</span></div>
+      <div class="library-list" id="libraryList"></div>
+    </section>
+  </main>
+
+  <dialog id="detailDialog"><button class="dialog-close" aria-label="关闭">×</button><div id="dialogBody"></div></dialog>
+  <script src="learning-db.js?v=2"></script>
+  <script src="lessons.js?v=2"></script>
+  <script src="deep-lessons.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+</body>
+</html>
